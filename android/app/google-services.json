@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "74398289452",
+    "project_id": "ods-quest",
+    "storage_bucket": "ods-quest.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:74398289452:android:da4eb85953df789900cb89",
+        "android_client_info": {
+          "package_name": "com.example.ods_quest"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDl13vAMH--H7tY83OSe1lhm2cncx_AEDQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
