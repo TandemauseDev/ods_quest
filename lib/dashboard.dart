@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:ods_quest/nivel.dart';
 
@@ -13,9 +14,33 @@ class Dashboard extends StatefulWidget {
   _DashboardState createState() => _DashboardState();
 }
 
-class _DashboardState extends State<Dashboard> {
-  int _selectedIndex = 0; 
+class _DashboardState extends State<Dashboard> with SingleTickerProviderStateMixin {
+  int _selectedIndex = 0;
   late List<String> filteredNombres = nombres;
+  late AnimationController _animationController;
+  late Animation<Offset> _offsetAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      duration: Duration(milliseconds: 500),
+      vsync: this,
+    );
+    _offsetAnimation = Tween<Offset>(
+      begin: Offset(0.0, -1.0),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeOut,
+    ));
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
 
   void _filterNombres(String searchText) {
     setState(() {
@@ -32,23 +57,32 @@ class _DashboardState extends State<Dashboard> {
       debugShowCheckedModeBanner: false,
       home: Scaffold(
         appBar: AppBar(
-        title: const Text(
-          'ODS Quest',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
+          title: _selectedIndex == 1
+              ? const Text(
+                  'Avatar',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                  ),
+                )
+              : const Text(
+                  'ODS Quest',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
           backgroundColor: const Color(0xff60D3F2),
-          shape: const RoundedRectangleBorder(
+          shape: _selectedIndex == 1 ? null : const RoundedRectangleBorder(
             borderRadius: BorderRadius.vertical(
               bottom: Radius.circular(20),
             ),
           ),
           toolbarHeight: 70,
         ),
-        body: _buildBody(), 
+        body: _buildBody(),
         bottomNavigationBar: BottomNavigationBar(
           items: const <BottomNavigationBarItem>[
             BottomNavigationBarItem(
@@ -56,16 +90,12 @@ class _DashboardState extends State<Dashboard> {
               label: 'Inicio',
             ),
             BottomNavigationBarItem(
-
               icon: Icon(Icons.person),
               label: 'Perfil',
-
-
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.casino),
               label: 'Random',
-
             ),
           ],
           currentIndex: _selectedIndex,
@@ -80,7 +110,8 @@ class _DashboardState extends State<Dashboard> {
       case 0:
         return _buildHomeView();
       case 1:
-        return Container(); // Página de búsqueda vacía por ahora
+        _animationController.forward(from: 0.0);
+        return _buildProfileView();
       case 2:
         return Container(); // Página de perfil vacía por ahora
       default:
@@ -134,6 +165,176 @@ class _DashboardState extends State<Dashboard> {
     );
   }
 
+  void _signOut() async {
+  try {
+    await FirebaseAuth.instance.signOut();
+    // Una vez que se cierra sesión con éxito, puedes navegar a otra pantalla, por ejemplo, la pantalla de inicio.
+    // Navigator.pushReplacementNamed(context, '/login'); // Reemplaza '/login' con la ruta de tu pantalla de inicio de sesión.
+  } catch (e) {
+    print("Error al cerrar sesión: $e");
+  }
+}
+
+Widget _buildProfileView() {
+  return Stack(
+    children: [
+      SlideTransition(
+        position: _offsetAnimation,
+        child: Column(
+          children: [
+            Container(
+              width: MediaQuery.of(context).size.width,
+              height: MediaQuery.of(context).size.height / 2.5,
+              decoration: BoxDecoration(
+                color: Color(0xff60D3F2),
+                borderRadius: BorderRadius.vertical(
+                  bottom: Radius.circular(20),
+                ),
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    width: 200,
+                    height: 200,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      image: DecorationImage(
+                        image: AssetImage('assets/perfil.png'),
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 16),
+                  Padding(
+                    padding: const EdgeInsets.only(right: 16.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        IconButton(
+                          onPressed: () {
+                            _signOut();
+                            // Acción del botón de salir
+                          },
+                          icon: Icon(Icons.exit_to_app),
+                          color: Colors.white,
+                        ),
+                        IconButton(
+                          onPressed: () {
+                            // Acción del botón de editar
+                          },
+                          icon: Icon(Icons.edit),
+                          color: Colors.white,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(30.0),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  'Logros',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 60.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  _buildAchievementBox(Icons.star, 'Título 1'),
+                  SizedBox(width: 16), // Espacio entre los iconos
+                  _buildAchievementBox(Icons.star, 'Título 2'),
+                  SizedBox(width: 16), // Espacio entre los iconos
+                  _buildAchievementBox(Icons.emoji_events, 'Título 3'),
+                ],
+              ),
+            ),
+
+                        Padding(
+              padding: const EdgeInsets.all(30.0),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  'Estadisticas',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+              Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  _buildStatsBox(Icons.star, 'Título 1'),
+                  _buildStatsBox(Icons.star, 'Título 2'),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    ],
+  );
+}
+
+Widget _buildAchievementBox(IconData icon, String title) {
+  return Container(
+    width: 40,
+    height: 40,
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(10),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.grey.withOpacity(0.5),
+          spreadRadius: 2,
+          blurRadius: 5,
+          offset: Offset(0, 3),
+        ),
+      ],
+    ),
+    child: Icon(
+      icon,
+      size: 20,
+      color: Color(0xff60D3F2),
+    ),
+  );
+}
+Widget _buildStatsBox(IconData icon, String title) {
+  return Container(
+    width: 100,
+    height: 60,
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(10),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.grey.withOpacity(0.5),
+          spreadRadius: 2,
+          blurRadius: 5,
+          offset: Offset(0, 3),
+        ),
+      ],
+    ),
+    child: Icon(
+      icon,
+      size: 20,
+      color: Color(0xff60D3F2),
+    ),
+  );
+}
   Widget _buildDashboardItem(BuildContext context, String itemName) {
     String imagePath = '';
 

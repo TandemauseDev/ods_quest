@@ -262,7 +262,10 @@ Widget build(BuildContext context) {
           size: 30,
         ),
         onPressed: () {
-          Navigator.pop(context);
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const Dashboard()),
+        );
         },
       ),
       title: Center(

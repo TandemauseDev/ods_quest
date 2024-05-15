@@ -1,131 +1,122 @@
-// ignore_for_file: avoid_print
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:ods_quest/firebase_options.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:ods_quest/dashboard.dart';
 import 'package:ods_quest/login_page.dart';
 import 'package:ods_quest/registration_page.dart';
-import 'package:firebase_core/firebase_core.dart';
 
-import 'firebase_options.dart';
-
-Future<void> main() async {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-);
-FirebaseFirestore.instance.settings = const Settings();
+  await Firebase.initializeApp();
+
   runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  const MyApp({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      title: 'ODS Quest',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
       debugShowCheckedModeBanner: false,
-      home: const MyHomePage(title: '',),
-
+      home: StreamBuilder(
+        stream: FirebaseAuth.instance.authStateChanges(),
+        builder: (context, AsyncSnapshot<User?> snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Scaffold(
+              body: Center(
+                child: CircularProgressIndicator(),
+              ),
+            );
+          } else {
+            if (snapshot.hasData && snapshot.data != null) {
+              // Usuario autenticado, redirige al dashboard
+              return Dashboard();
+            } else {
+              // Usuario no autenticado, muestra la pantalla principal
+              return MyHomePage(title: 'ODS Quest');
+            }
+          }
+        },
+      ),
     );
   }
 }
 
 class MyHomePage extends StatelessWidget {
   final String title;
-  const MyHomePage({super.key, required this.title});
+
+  const MyHomePage({Key? key, required this.title}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Column(
         children: [
-          Expanded(
-            flex: 3,
-            child: ClipRRect(
-              borderRadius: const BorderRadius.vertical(
-                bottom: Radius.circular(30.0),
-              ),
-              child: Stack(
-                children: [
-                  // Fondo azul
-                  Container(
-                    color: const Color(0xff60D3F2),
-                  ),
-                  // Imagen de fondo
-                  Image.asset(
-                    'assets/logo.png', // Reemplaza 'background.jpg' por el nombre de tu imagen
-                    height: double.infinity,
-                    width: double.infinity,
-                    
-                  ),
-                  const Positioned(
-                    left: 16,
-                    right: 16,
-                    bottom: 100,
-                    child: Text(
-                      'ODS',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 50.0,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                  const Positioned(
-                    left: 16,
-                    right: 16,
-                    bottom: 70,
-                    child: Text(
-                      'Quest',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 30.0,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                  const Positioned(
-                    left: 16,
-                    right: 16,
-                    bottom: 40,
-                    child: Text(
-                      '¡Juega y cambia el mundo!',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16.0,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                  AppBar(
-                    backgroundColor: Colors.transparent, // AppBar sin fondo
-                    centerTitle: true,
-                    title: Text(
-                      title,
-                      style: const TextStyle(
-                        fontSize: 24.0,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+ Expanded(
+  flex: 3,
+  child: Container(
+    width: double.infinity, // Ocupa todo el ancho disponible
+    decoration: BoxDecoration(
+      color: const Color(0xff60D3F2),
+      borderRadius: const BorderRadius.vertical(
+        bottom: Radius.circular(30.0),
+      ),
+    ),
+    child: Column(
+      mainAxisAlignment: MainAxisAlignment.center, // Centra verticalmente los elementos
+      crossAxisAlignment: CrossAxisAlignment.center, // Centra horizontalmente los elementos
+      children: [
+        Image.asset(
+          'assets/logo.png',
+          height: 160,
+          width: 160,
+          fit: BoxFit.contain,
+        ),
+        const SizedBox(height: 20),
+        Text(
+          'ODS',
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 50.0,
+            fontWeight: FontWeight.bold,
           ),
+        ),
+        Text(
+          'Quest',
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 30.0,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const SizedBox(height: 10),
+        Text(
+          '¡Juega y cambia el mundo!',
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 16.0,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ],
+    ),
+  ),
+),
           Expanded(
             flex: 2,
             child: Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
-
                   SizedBox(
                     width: 200,
                     height: 50,
@@ -134,11 +125,8 @@ class MyHomePage extends StatelessWidget {
                         print('Botón de Registro presionado');
                         Navigator.push(
                           context,
-                        MaterialPageRoute(builder: (context) => const RegistrationPage())
-
-
+                          MaterialPageRoute(builder: (context) => const RegistrationPage()),
                         );
-
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.white,
@@ -148,10 +136,7 @@ class MyHomePage extends StatelessWidget {
                       child: const Text('Registro'),
                     ),
                   ),
-
                   const SizedBox(height: 20),
-
-
                   SizedBox(
                     width: 200,
                     height: 50,
@@ -160,9 +145,7 @@ class MyHomePage extends StatelessWidget {
                         print('Botón de Inicio presionado');
                         Navigator.push(
                           context,
-                        MaterialPageRoute(builder: (context) => const LoginPage())
-
-
+                          MaterialPageRoute(builder: (context) => const LoginPage()),
                         );
                       },
                       style: ElevatedButton.styleFrom(

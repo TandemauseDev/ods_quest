@@ -113,7 +113,7 @@ class _NivelState extends State<Nivel> {
     return Container(
       width: 150, // Ancho del contenedor (puedes ajustar este valor)
       height: 150, // Alto del contenedor (mismo que el ancho para hacerlo cuadrado)
-      margin: const EdgeInsets.all(8),
+      margin: const EdgeInsets.all(5),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(10),
