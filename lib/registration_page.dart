@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ods_quest/main.dart';
 import 'package:ods_quest/utils/auth.dart';
 
 class RegistrationPage extends StatefulWidget {
@@ -218,7 +219,11 @@ class _RegistrationPageState extends State<RegistrationPage> {
                                     // Verificar si se creó la cuenta exitosamente
                                     if (result != null) {
                                       // Navegar a otra pantalla si el registro fue exitoso
-                                      Navigator.pushReplacementNamed(context, '/');
+
+                                            Navigator.pushReplacement(
+                                            context,
+                                            MaterialPageRoute(builder: (context) => MyApp()),
+                                          );
                                     } else {
                                       // Mostrar mensaje de error solo si la creación de cuenta falló
                                       ScaffoldMessenger.of(context).showSnackBar(
