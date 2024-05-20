@@ -65,13 +65,21 @@ class _SopaState extends State<Sopa> {
           ),
         ),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
-        child: Container(
-          // Aquí puedes agregar el contenido del juego "Sopa"
-          // Por ejemplo, un formulario, juego interactivo, etc.
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Text(
+            '¡Próximamente!',
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: Colors.blueGrey,
+            ),
+            textAlign: TextAlign.center,
+          ),
         ),
       ),
+      
     );
   }
 }
